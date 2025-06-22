@@ -232,7 +232,7 @@ for ano, df in dfs.items():
 print("Upload concluído!")
 print("Objetos no bucket:", [obj["Key"] for obj in s3.list_objects(Bucket=BUCKET)["Contents"]])
 
-'''
+```
 
 ---
 
