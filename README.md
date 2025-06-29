@@ -57,10 +57,6 @@ Ele é uma **vitrine** do que aprendi ao longo da formação, reunindo trechos d
 
 ## Pipeline de Dados & Camadas
 
-<p align="center">
-  <img src="images/aws_pipeline_2.png" alt="Fluxo bronze → silver → gold" width="80%">
-</p>
-
 1. **Bronze** – Dados brutos, sem qualquer transformação.  
 2. **Silver** – Dados limpos, normalizados e particionados.  
 3. **Gold** – Agregações e fatos otimizados para BI/Analytics.
