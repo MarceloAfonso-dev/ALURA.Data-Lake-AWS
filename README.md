@@ -45,7 +45,7 @@ Ele é uma **vitrine** do que aprendi ao longo da formação, reunindo trechos d
 
 | Camada | Serviço principal | Propósito |
 | ------ | ---------------- | --------- |
-| **Ingestão** | Amazon S3 + Python (`boto3`) | Armazenar dados crus (CSV/JSON) na *bronze* |
+| **Ingestão** | Amazon S3 + Python (`boto3`) | Armazenar dados previamente convertidos (CSV >> Parquet) na *bronze* |
 | **ETL** | AWS Glue (Crawler, Jobs, Data Brew) | Catalogar, limpar e converter para Parquet na *silver* |
 | **Processamento distribuído** | AWS EMR + Apache Spark | Agregações pesadas / transformação para a *gold* |
 | **Consulta** | Amazon Athena | SQL serverless sobre S3 |
