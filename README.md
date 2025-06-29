@@ -117,7 +117,7 @@ Aplica qualidade de dados de maneira simplificada de acordo com os pilares do DA
 Tratamento de dados similar ao PowerBI, sem códigos e totalmente interativo.
 
 <p align="center">
-  <img src="images/aws_pipeline_8.png" alt="Painel DataBrew" width="75%">
+  <img src="images/aws_pipeline_9.png" alt="Painel DataBrew" width="75%">
 </p>
 
 ---
