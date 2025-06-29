@@ -15,18 +15,18 @@ Ele é uma **vitrine** do que aprendi ao longo da formação, reunindo trechos d
 
 ## 📚 Conteúdo
 
-1. [Visão Geral](#visão-geral)  
-2. [Arquitetura & Serviços](#arquitetura--serviços)  
+1. [Visão Geral](#visao-geral)  
+2. [Arquitetura & Serviços](#arquitetura--servicos)  
 3. [Pipeline de Dados – Camadas](#pipeline-de-dados--camadas)  
 4. [Passo-a-Passo](#passo-a-passo)  
-   1. [Ingestão](#11-ingestão)  
-   2. [Processamento & ETL](#12-processamento--etl)  
-   3. [Governança & Catálogo](#13-governança--catálogo)  
-   4. [Insights & Dashboard](#14-insights--dashboard) *(próximos passos)*  
-5. [Trechos de Código Python](#trechos-de-código-python)  
-6. [Boas Práticas & Aprendizados](#boas-práticas--aprendizados)  
+   1. [Ingestão](#1-ingestao)  
+   2. [Processamento & ETL](#2-processamento--etl)  
+   3. [Governança & Catálogo](#3-governanca--catalogo)  
+   4. [Insights & Dashboard](#4-insights--dashboard)  
+5. [Trechos de Código Python](#trechos-de-codigo-python)  
+6. [Boas Práticas & Aprendizados](#boas-praticas--aprendizados)  
 7. [Roadmap Pessoal](#roadmap-pessoal)  
-8. [Créditos](#créditos)
+8. [Créditos](#creditos)
 
 ---
 
@@ -128,14 +128,14 @@ Tratamento de dados similar ao PowerBI, sem códigos e totalmente interativo.
 Define administradores e Data Lake Location
 
 <p align="center">
-  <img src="images/aws_pipeline_9.png" alt="Configuração Lake Formation" width="75%">
+  <img src="images/aws_pipeline_10.png" alt="Configuração Lake Formation" width="75%">
 </p>
 
 #### Permissões Granulares  
 Controle de acesso a colunas sensíveis via LF-Tags e políticas IAM.
 
 <p align="center">
-  <img src="images/aws_pipeline_10.png" alt="Permissões detalhadas" width="75%">
+  <img src="images/aws_pipeline_11.png" alt="Permissões detalhadas" width="75%">
 </p>
 
 
