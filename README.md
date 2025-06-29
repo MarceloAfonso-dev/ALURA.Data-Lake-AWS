@@ -132,7 +132,7 @@ Define administradores e Data Lake Location
 </p>
 
 #### Permissões Granulares  
-Controle de acesso a colunas sensíveis via LF-Tags e políticas IAM.
+Controle de acesso a colunas / linhas sensíveis via Lake Formation Data Filters.
 
 <p align="center">
   <img src="images/aws_pipeline_11.png" alt="Permissões detalhadas" width="75%">
@@ -229,6 +229,17 @@ print("Upload concluído!")
 print("Objetos no bucket:", [obj["Key"] for obj in s3.list_objects(Bucket=BUCKET)["Contents"]])
 
 ```
+
+---
+
+> 🔐 **Sobre credenciais**  
+> - Todas as chamadas `boto3` utilizam um **usuário IAM de menor privilégio** criado especificamente para este projeto (chaves armazenadas em variáveis de ambiente).  
+> - A **conta root não é usada** em nenhuma etapa; MFA permanece habilitado.  
+> - A política anexada ao usuário contém apenas:  
+>   * `s3:PutObject`, `s3:GetObject`, `s3:ListBucket` restritos ao bucket `alura-datalakeaws-mac/*`  
+>   * `lakeformation:GetDataAccess` e `athena:*` para consultas controladas pelo Lake Formation  
+>   * `glue:*` limitado ao ***Job ETL*** e ao ***Crawler*** deste projeto.  
+> - Logs de acesso estão em **CloudTrail** → S3 e **CloudWatch** para auditoria.
 
 ---
 
