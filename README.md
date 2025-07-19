@@ -4,7 +4,7 @@
 
 | Status | Formação | Instrutora |
 | ------ | -------- | ---------- |
-| 🚧 Em andamento | **AWS Data Lake** (Alura) | **Ana Hashimoto**
+| ✅ Concluído | **AWS Data Lake** (Alura) | **Ana Hashimoto** |
 
 </div>
 
