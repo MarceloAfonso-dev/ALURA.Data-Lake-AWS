@@ -21,7 +21,9 @@ Ele é uma **vitrine** do que aprendi ao longo da formação, reunindo trechos d
    1. [Ingestão](#1-ingestão)  
    2. [Processamento & ETL](#2-processamento--etl)  
    3. [Governança & Catálogo](#3-governança--catálogo)  
-   4. [Insights & Dashboard](#4-insights--dashboard)  
+   4. [Processamento com EMR + Spark](#4-processamento-com-emr--spark)
+   5. [Consultas com AWS Athena](#5-consultas-com-aws-athena)
+   6. [Insights & Dashboard](#6-insights--dashboard)  
 5. [Trechos de Código Python](#trechos-de-código-python)  
 6. [Boas Práticas & Aprendizados](#boas-práticas--aprendizados)  
 7. [Roadmap Pessoal](#roadmap-pessoal)  
@@ -32,7 +34,8 @@ Ele é uma **vitrine** do que aprendi ao longo da formação, reunindo trechos d
 ## Visão Geral
 
 > Construí uma **pipeline serverless** na AWS que ingere, processa e disponibiliza dados em formato otimizado (Parquet).  
-> O projeto segue o padrão *Data Lake* (camadas bronze → silver → gold) e emprega **Infraestrutura como Código** (IaC) para facilitar reprodutibilidade.
+> O projeto segue o padrão *Data Lake* (camadas bronze → silver → gold) para ingestão, transformação e análise dos dados.
+
 
 <p align="center">
   <img src="images/architecture.png" alt="Arquitetura Data Lake AWS" width="80%">
@@ -50,7 +53,6 @@ Ele é uma **vitrine** do que aprendi ao longo da formação, reunindo trechos d
 | **Consulta** | Amazon Athena | SQL serverless sobre S3 |
 | **Visualização** | AWS QuickSight | Dashboards interativos |
 | **Governança** | AWS Lake Formation + IAM | Segurança, RBAC e monitoramento |
-| **IaC** | AWS CloudFormation / CDK | Provisionamento repetível |
 
 ---
 
@@ -137,18 +139,57 @@ Controle de acesso a colunas / linhas sensíveis via Lake Formation Data Filters
   <img src="images/aws_pipeline_11.png" alt="Permissões detalhadas" width="75%">
 </p>
 
+---
 
-### 4. Insights & Dashboard *(próximos passos)*
+### 4. Processamento com EMR + Spark
 
-| Planejado | Descrição |
-| --------- | --------- |
-| **EMR** | Completar o curso “AWS Data Lake: processando dados com EMR” |
-| **Athena** | Consultar camadas silver & gold via SQL |
-| **QuickSight** | Criar dashboard com storytelling e exploração guiada |
+- Criação de cluster **AWS EMR** para processar dados do S3.
+- Execução de **PySpark** para transformação em batch.
+- Uso de Spark CLI para jobs automatizados.
+
+<p align="center">
+  <img src="images/aws_pipeline_12.png" alt="AWS EMR Cluster" width="75%">
+</p>
+
+---
+### 5. Consultas com AWS Athena
+
+- **Athena** permite executar SQL diretamente sobre os dados armazenados no S3, sem necessidade de provisionar servidores.
+- Cada camada (**bronze**, **silver**, **gold**) pode ser consultada via tabelas criadas no Glue Data Catalog.
+- Exemplos de uso:
+  - Explorar dados brutos da camada bronze para validação inicial.
+  - Realizar queries otimizadas sobre dados limpos e particionados na silver.
+  - Gerar relatórios e análises rápidas sobre agregações da gold.
+- Integração nativa com **Lake Formation** para controle de acesso granular.
+- Resultados das queries podem ser exportados para CSV, visualizados no console ou integrados ao QuickSight.
+
+<p align="center">
+  <img src="images/aws_pipeline_13.png" alt="Consulta Athena" width="75%">
+</p>
+
+--- 
+
+### 6. Insights & Dashboard
+
+- **QuickSight**: criação de análises visuais utilizando datasets no S3 (via Athena).
+- Configuração de **SPICE** para aceleração de queries.
+- Boas práticas de **DataViz** aplicadas:
+  - Escolha de gráficos adequados
+  - Uso de cores consistentes
+  - Storytelling no dashboard
+- Uso de **Reader vs Author** para controle de custos.
+
+<p align="center">
+  <img src="images/aws_pipeline_14.png" alt="QuickSight Dashboard" width="75%">
+</p>
+<p align="center">
+  <img src="images/aws_pipeline_15.jpg" alt="QuickSight Dashboard" width="75%">
+</p>
 
 ---
 
-## Trechos de Código Python
+
+## Trechos de Código Python de upload bronze
 
 > **⚠️ As credenciais foram removidas e substituídas por variáveis de ambiente.**  
 > Siga as [práticas recomendadas de segurança](https://docs.aws.amazon.com/pt_br/sdkref/latest/guide/creds-config-files.html).
@@ -229,6 +270,86 @@ print("Objetos no bucket:", [obj["Key"] for obj in s3.list_objects(Bucket=BUCKET
 
 ```
 
+## Trechos de Código Python de processamento com Spark/EMR
+
+> Script utilizado para transformar dados na camada gold usando PySpark no EMR.
+
+```python
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, unix_timestamp, when
+from pyspark.sql.types import TimestampType
+import argparse
+
+def transform_data(database:str, table_source:str, table_target:str) -> None:
+    spark = (SparkSession.builder
+             .appName("Boston 311 Service Requests Analysis")
+             .enableHiveSupport()
+             .getOrCreate())
+    
+    df = spark.read.table(f"`{database}`.`{table_source}`")
+
+    df = (df.withColumn("open_dt", col("open_dt").cast(TimestampType()))
+          .withColumn("closed_dt", col("closed_dt").cast(TimestampType()))
+          .withColumn("target_dt", col("target_dt").cast(TimestampType()))
+    )
+
+    df = df.withColumn("delay_days", when
+                      (col("closed_dt")>col("target_dt"),
+                      (unix_timestamp(col("closed_dt"))-unix_timestamp(col("target_dt")))/86400, ).otherwise(0), )
+    
+    columns_to_keep = [
+        "case_enquiry_id",
+        "open_dt",
+        "closed_dt",
+        "target_dt",
+        "case_status",
+        "ontime",
+        "closure_reason_normalized",
+        "case_title",
+        "subject",
+        "reason",
+        "neighborhood",
+        "location_street_name",
+        "location_zipcode",
+        "latitude",
+        "longitude",
+        "source",
+        "delay_days",
+    ]
+
+    df_selected = df.select(columns_to_keep)
+
+    df_selected.createOrReplaceTempView("boston_311_data")
+
+    query = """
+    SELECT * FROM boston_311_data
+    WHERE case_status = 'Closed'
+    AND delay_days > 0
+    ORDER BY delay_days DESC
+    """
+
+    result_df = spark.sql(query)
+
+    result_df.write.mode("overwrite").format("parquet").insertInto(f"`{database}`.`{table_target}`", overwrite=True)
+
+
+    spark.stop()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Transformar dados de solicitações de serviço de Boston 311"
+    )
+    parser.add_argument("--database", type=str, help="Nome do banco de dados no Glue Data Catalog")
+    parser.add_argument("--table_source", type=str, help="Nome da tabela origem no Glue Data Catalog")
+    parser.add_argument("--table_target", type=str, help="Nome da tabela destino no Glue Data Catalog")
+
+    args = parser.parse_args()
+
+    transform_data(args.database, args.table_source, args.table_target)
+
+    
+```
+
 ---
 
 > 🔐 **Sobre credenciais**  
@@ -263,7 +384,6 @@ print("Objetos no bucket:", [obj["Key"] for obj in s3.list_objects(Bucket=BUCKET
 ## Roadmap Pessoal
 
 - [ ] Formação Alura: Data Lake com Pipelines na AWS 
-- [ ] Formação Alura: Engenharia de Analytics na AWS
 - [ ] Certificação **AWS Data Engineer – Associate** até **dez / 2025**
 
 ---
